@@ -1,0 +1,20 @@
+{
+  "name": "audio-to-spectrogram",
+  "version": "1.0.0",
+  "description": "Creates a spectrogram or mel spectrogram image from an mp3 or wav file",
+  "main": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joecal/audio-to-spectrogram.git"
+  },
+  "keywords": ["mp3, wav, spectrogram, mel spectrogram, librosa"],
+  "author": "joecal",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/joecal/audio-to-spectrogram/issues"
+  },
+  "homepage": "https://github.com/joecal/audio-to-spectrogram#readme"
+}

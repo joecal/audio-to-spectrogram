@@ -1,0 +1,86 @@
+<div class="main-container accent-background-color">
+  <mat-toolbar color="primary">
+    <mat-toolbar-row class="accent-background-color-darker">
+      <div class="third-width"></div>
+      <div class="third-width title">
+        <span>Audio To Spectrogram</span>
+      </div>
+      <div class="third-width settings">
+        <button mat-icon-button>
+          <mat-icon>settings</mat-icon>
+        </button>
+      </div>
+    </mat-toolbar-row>
+
+    <mat-toolbar-row>
+      <form [formGroup]="spectrogramForm">
+        <input
+          style="display: none"
+          type="file"
+          accept="audio/mpeg,audio/wav"
+          (change)="onFilesChanged($event)"
+          #fileInput
+          multiple
+        />
+        <button mat-raised-button (click)="fileInput.click()">
+          <mat-icon>audiotrack</mat-icon>
+          <span>Select Files</span>
+        </button>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Spectrogram Type</mat-label>
+          <mat-select formControlname="type" required>
+            <mat-option value="default">Spectrogram</mat-option>
+            <mat-option value="mel">Mel Spectrogram</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Resolution</mat-label>
+          <input
+            matInput
+            type="number"
+            formControlname="resolution"
+            min="1"
+            required
+          />
+          <span matSuffix>dpi</span>
+          <!-- <mat-error *ngIf="spectrogramForm.get('resolution').invalid"
+          >Min size: 1dpi</mat-error
+        > -->
+        </mat-form-field>
+
+        <button mat-raised-button>
+          <mat-icon>play_circle_filled</mat-icon>
+          <span>Start</span>
+        </button>
+      </form>
+    </mat-toolbar-row>
+  </mat-toolbar>
+  <h1>{{ logMessage }}</h1>
+
+  <!-- <mat-card class="example-card">
+    <mat-card-header>
+      <div mat-card-avatar class="example-header-image"></div>
+      <mat-card-title>Shiba Inu</mat-card-title>
+      <mat-card-subtitle>Dog Breed</mat-card-subtitle>
+    </mat-card-header>
+    <img
+      mat-card-image
+      src="https://material.angular.io/assets/img/examples/shiba2.jpg"
+      alt="Photo of a Shiba Inu"
+    />
+    <mat-card-content>
+      <p>
+        The Shiba Inu is the smallest of the six original and distinct
+        spitz breeds of dog from Japan. A small, agile dog that copes
+        very well with mountainous terrain, the Shiba Inu was
+        originally bred for hunting.
+      </p>
+    </mat-card-content>
+    <mat-card-actions>
+      <button mat-button>LIKE</button>
+      <button mat-button>SHARE</button>
+    </mat-card-actions>
+  </mat-card> -->
+</div>
