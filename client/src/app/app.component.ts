@@ -1,12 +1,9 @@
 import { HttpClient } from '@angular/common/http';
-import { Component } from '@angular/core';
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  Validators,
-} from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { SocketService } from './socket.service';
+import { BottomSheetComponent } from './bottom-sheet/bottom-sheet.component';
 
 interface SpectrogramType {
   value: string;
@@ -22,24 +19,46 @@ interface HTMLInputEvent extends Event {
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   spectrogramForm: FormGroup;
   logMessage: string;
+  spectrograms: any[];
 
   constructor(
     private formBuilder: FormBuilder,
     private http: HttpClient,
     private socketService: SocketService,
+    private bottomSheet: MatBottomSheet,
   ) {
     this.spectrogramForm = this.formBuilder.group({
       files: ['', Validators.required],
       type: ['', Validators.required],
       resolution: ['', Validators.required],
     });
-    this.logMessage = 'test';
-    this.socketService.logSubject.subscribe((message: string) => {
-      this.logMessage = message;
-    });
+    this.spectrograms = [];
+  }
+
+  ngOnInit() {
+    this.loadData();
+  }
+
+  async loadData() {
+    try {
+      this.spectrograms = await this.getSpectrograms();
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async getSpectrograms(): Promise<any> {
+    return this.http
+      .get('http://localhost:8080/spectrograms')
+      .toPromise()
+      .then((response: any) => response);
+  }
+
+  openBottomSheet(): void {
+    this.bottomSheet.open(BottomSheetComponent);
   }
 
   onFilesChanged(inputEvent: Event) {
@@ -53,6 +72,7 @@ export class AppComponent {
           await this.asyncForEach(
             selectedFiles as any,
             async (file: File) => {
+              this.openBottomSheet();
               const response = await this.readFile(file);
               console.log('response: ', response);
             },

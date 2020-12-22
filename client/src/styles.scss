@@ -353,8 +353,26 @@ body {
   padding: 0;
 }
 
+// hide scrollbars
+
+* {
+  /*FireFox*/
+  scrollbar-width: none;
+  /*IE10+*/
+  -ms-overflow-style: -ms-autohiding-scrollbar;
+}
+
+::-webkit-scrollbar {
+  /*Chrome, Safari, Edge*/
+  display: none;
+}
+
 // material overrides
 
 audio-to-spectrogram-root .mat-form-field-wrapper {
   padding-bottom: 0 !important;
+}
+
+.mat-bottom-sheet-container {
+  max-height: 50vh !important;
 }

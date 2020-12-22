@@ -64,6 +64,26 @@ class App {
     this.app.get("/", (request, response) => {
       response.send("Hello World!");
     });
+
+    this.app.get("/spectrograms", (request, response) => {
+      const files: any = [];
+      const readFiles = fs.readdirSync(path.join(__dirname, "./spectrogram-images"));
+      readFiles.forEach((fileName: string, index: number) => {
+        let filePath = `${__dirname}/spectrogram-images/${fileName}`;
+        const buffer = fs.readFileSync(filePath);
+        const base64data: string = "data:image/png;base64," + buffer.toString("base64");
+        filePath = base64data;
+        const eachFile = {
+          filePath,
+          fileName,
+        };
+        files.push(eachFile);
+      });
+      // fs.writeFileSync(path.join(__dirname, "../../client/src/assets/spectrograms.json"), JSON.stringify(files));
+      // ^^^ if files data is larger than 50mb and not running angular in dev mode ^^^
+      response.json(files);
+    });
+
     this.app.post("/file", async (request, response) => {
       try {
         const file: any = request.body;
@@ -87,7 +107,9 @@ class App {
         }
 
         const channel = "0";
-        await this.generateSpectrogram(filePath, channelLayout, channel);
+        await this.generateSpectrogram(fileName, filePath, channelLayout, channel);
+
+        await this.deleteFile(fileName, filePath);
 
         this.sendSocketMessage("Done!");
         response.send(true);
@@ -198,12 +220,12 @@ class App {
     this.socket.emit("log", message);
   }
 
-  async generateSpectrogram(filePath: string, channelLayout: string, channel: string): Promise<boolean> {
+  async generateSpectrogram(fileName: string, filePath: string, channelLayout: string, channel: string): Promise<boolean> {
     return new Promise((resolve, reject) => {
       const shell = new PythonShell(path.join(__dirname, "./python/spectrogram.py"), {
         pythonOptions: ["-u"],
         pythonPath: "/usr/bin/python",
-        args: [`${filePath}`, channelLayout, channel],
+        args: [`${fileName}`, `${filePath}`, channelLayout, channel],
       });
       shell.on("message", (message) => {
         this.sendSocketMessage(message);
@@ -216,7 +238,7 @@ class App {
         this.sendSocketMessage(`Python shell finished with code ${code}`);
         this.sendSocketMessage(`Python shell finished with signal ${signal}`);
         if (channelLayout === "stereo" && channel === "0") {
-          await this.generateSpectrogram(filePath, channelLayout, "1");
+          await this.generateSpectrogram(fileName, filePath, channelLayout, "1");
         }
         resolve(true);
       });

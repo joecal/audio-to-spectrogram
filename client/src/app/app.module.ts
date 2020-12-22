@@ -7,9 +7,10 @@ import { HttpClientModule } from '@angular/common/http';
 import { SharedModule } from './shared/shared.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SocketService } from './socket.service';
+import { BottomSheetComponent } from './bottom-sheet/bottom-sheet.component';
 
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [AppComponent, BottomSheetComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,

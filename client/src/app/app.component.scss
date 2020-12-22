@@ -5,15 +5,8 @@
   flex-direction: row;
   flex-wrap: wrap;
   justify-content: center;
-}
-
-.example-card {
-  max-width: 400px;
-}
-
-.example-header-image {
-  background-image: url('https://material.angular.io/assets/img/examples/shiba1.jpg');
-  background-size: cover;
+  padding: 16px;
+  overflow: auto;
 }
 
 mat-toolbar {
@@ -51,4 +44,23 @@ mat-form-field {
   display: flex;
   align-items: center;
   justify-content: flex-end;
+}
+
+mat-card {
+  width: 400px;
+  height: 341px;
+  margin: 16px;
+}
+
+.elipsis {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  width: 180px;
+  display: block;
+  overflow: hidden;
+}
+
+.mat-card-image {
+  border-bottom-right-radius: 4px;
+  border-bottom-left-radius: 4px;
 }
