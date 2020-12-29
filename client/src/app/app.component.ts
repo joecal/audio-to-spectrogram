@@ -1,9 +1,21 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {
+  AfterViewInit,
+  Component,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
+import {
+  FormBuilder,
+  FormGroup,
+  FormGroupDirective,
+  Validators,
+} from '@angular/forms';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { SocketService } from './socket.service';
 import { BottomSheetComponent } from './bottom-sheet/bottom-sheet.component';
+import { MatTooltip } from '@angular/material/tooltip';
+import { MatSelectChange } from '@angular/material/select';
 
 interface SpectrogramType {
   value: string;
@@ -19,10 +31,18 @@ interface HTMLInputEvent extends Event {
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, AfterViewInit {
+  @ViewChild('selectFilesToolTip') selectFilesToolTip: MatTooltip;
+  @ViewChild('selectSpecToolTip') selectSpecToolTip: MatTooltip;
+  @ViewChild('selectResolutionToolTip')
+  selectResolutionToolTip: MatTooltip;
+  @ViewChild('startToolTip')
+  startToolTip: MatTooltip;
   spectrogramForm: FormGroup;
   logMessage: string;
   spectrograms: any[];
+
+  private selectedFiles: FileList | null;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -33,13 +53,27 @@ export class AppComponent implements OnInit {
     this.spectrogramForm = this.formBuilder.group({
       files: ['', Validators.required],
       type: ['', Validators.required],
-      resolution: ['', Validators.required],
+      resolution: ['', [Validators.required, Validators.min(1)]],
     });
     this.spectrograms = [];
   }
 
   ngOnInit() {
     this.loadData();
+  }
+
+  ngAfterViewInit() {
+    this.showTooltip(
+      this.selectFilesToolTip,
+      'Select mp3 or wav file/s',
+    );
+  }
+
+  private showTooltip(toolTip: MatTooltip, message: string) {
+    setTimeout(() => {
+      toolTip.message = message;
+      toolTip.show();
+    }, 0);
   }
 
   async loadData() {
@@ -62,27 +96,50 @@ export class AppComponent implements OnInit {
   }
 
   onFilesChanged(inputEvent: Event) {
-    console.log('inputEvent: ', inputEvent);
     const event: HTMLInputEvent = inputEvent as HTMLInputEvent;
     if (event.target.files && event.target.files.length) {
-      console.log('event.target.files: ', event.target.files);
-      const selectedFiles = event.target.files;
-      const start = async () => {
-        try {
-          await this.asyncForEach(
-            selectedFiles as any,
-            async (file: File) => {
-              this.openBottomSheet();
-              const response = await this.readFile(file);
-              console.log('response: ', response);
-            },
-          );
-          console.log('Done');
-        } catch (error) {
-          console.error(error);
-        }
-      };
-      start();
+      this.selectedFiles = event.target.files;
+      this.openBottomSheet();
+      for (let i = 0; i < this.selectedFiles.length; i++) {
+        this.socketService.logSubject.next(
+          `${this.selectedFiles[i].name} selected!`,
+        );
+      }
+      this.spectrogramForm.controls.files.setValue(
+        this.selectedFiles,
+      );
+      this.spectrogramForm.controls.files.updateValueAndValidity();
+      this.showTooltip(
+        this.selectSpecToolTip,
+        'Select spectrogram type',
+      );
+    }
+  }
+
+  setSpectrogramType(selectChaceEvent: MatSelectChange) {
+    this.spectrogramForm.controls.type.setValue(
+      selectChaceEvent.value,
+    );
+    this.spectrogramForm.controls.type.updateValueAndValidity();
+    if (!this.spectrogramForm.controls.resolution.value) {
+      this.showTooltip(
+        this.selectResolutionToolTip,
+        'Select spectrogram resolution',
+      );
+    }
+  }
+
+  setSpectrogramResolution(inputEvent: any) {
+    this.spectrogramForm.controls.resolution.setValue(
+      Number(inputEvent.target.value),
+    );
+    this.spectrogramForm.controls.resolution.updateValueAndValidity();
+    if (
+      this.spectrogramForm.controls.files.value &&
+      this.spectrogramForm.controls.resolution.value &&
+      this.spectrogramForm.valid
+    ) {
+      this.showTooltip(this.startToolTip, 'Start');
     }
   }
 
@@ -120,8 +177,53 @@ export class AppComponent implements OnInit {
     array: any[],
     callback: Function,
   ): Promise<void> {
-    for (let index = 0; index < array.length; index++) {
-      await callback(array[index], index, array);
+    if (array && array.length) {
+      for (let index = 0; index < array.length; index++) {
+        await callback(array[index], index, array);
+      }
     }
+  }
+
+  start(
+    spectrogramForm: FormGroup,
+    formDirective: FormGroupDirective,
+  ) {
+    if (
+      this.selectedFiles &&
+      this.selectedFiles.length &&
+      this.spectrogramForm.valid
+    ) {
+      const start = async () => {
+        try {
+          await this.asyncForEach(
+            this.selectedFiles as any,
+            async (file: File) => {
+              this.openBottomSheet();
+              const response = await this.readFile(file);
+              console.log('response: ', response);
+            },
+          );
+          console.log('Done');
+          this.reset(spectrogramForm, formDirective);
+        } catch (error) {
+          console.error(error);
+        }
+      };
+      start();
+    }
+  }
+
+  private reset(
+    spectrogramForm: FormGroup,
+    formDirective: FormGroupDirective,
+  ) {
+    this.loadData();
+    spectrogramForm.reset();
+    formDirective.resetForm();
+    this.selectedFiles = null;
+    this.showTooltip(
+      this.selectFilesToolTip,
+      'Select mp3 or wav file/s',
+    );
   }
 }

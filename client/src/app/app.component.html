@@ -12,7 +12,11 @@
   </mat-toolbar-row>
 
   <mat-toolbar-row>
-    <form [formGroup]="spectrogramForm">
+    <form
+      [formGroup]="spectrogramForm"
+      #formDirective="ngForm"
+      (ngSubmit)="start(spectrogramForm, formDirective)"
+    >
       <input
         style="display: none"
         type="file"
@@ -21,20 +25,45 @@
         #fileInput
         multiple
       />
-      <button mat-raised-button (click)="fileInput.click()">
+      <button
+        #selectFilesToolTip="matTooltip"
+        matTooltip
+        mat-raised-button
+        (click)="fileInput.click()"
+      >
         <mat-icon>audiotrack</mat-icon>
         <span>Select Files</span>
       </button>
 
-      <mat-form-field appearance="outline">
+      <mat-form-field
+        appearance="outline"
+        #selectSpecToolTip="matTooltip"
+        matTooltip
+      >
         <mat-label>Spectrogram Type</mat-label>
-        <mat-select formControlname="type" required>
-          <mat-option value="default">Spectrogram</mat-option>
-          <mat-option value="mel">Mel Spectrogram</mat-option>
+        <mat-select
+          formControlname="type"
+          required
+          (selectionChange)="setSpectrogramType($event)"
+        >
+          <mat-option [value]="'default'">Spectrogram</mat-option>
+          <mat-option [value]="'mel'">Mel Spectrogram</mat-option>
         </mat-select>
+        <mat-error
+          *ngIf="
+            spectrogramForm.controls.type &&
+            spectrogramForm.controls.type.errors &&
+            spectrogramForm.controls.type.errors.required
+          "
+          >Type is required!</mat-error
+        >
       </mat-form-field>
 
-      <mat-form-field appearance="outline">
+      <mat-form-field
+        appearance="outline"
+        #selectResolutionToolTip="matTooltip"
+        matTooltip
+      >
         <mat-label>Resolution</mat-label>
         <input
           matInput
@@ -42,14 +71,34 @@
           formControlname="resolution"
           min="1"
           required
+          (input)="setSpectrogramResolution($event)"
         />
         <span matSuffix>dpi</span>
-        <!-- <mat-error *ngIf="spectrogramForm.get('resolution').invalid"
-          >Min size: 1dpi</mat-error
-        > -->
+        <mat-error
+          *ngIf="
+            spectrogramForm.controls.resolution &&
+            spectrogramForm.controls.resolution.errors &&
+            spectrogramForm.controls.resolution.errors.required
+          "
+          >Resolution is required!</mat-error
+        >
+        <mat-error
+          *ngIf="
+            spectrogramForm.controls.resolution &&
+            spectrogramForm.controls.resolution.errors &&
+            spectrogramForm.controls.resolution.errors.min
+          "
+          >Min size: 1dpi!</mat-error
+        >
       </mat-form-field>
 
-      <button mat-raised-button>
+      <button
+        type="submit"
+        mat-raised-button
+        [disabled]="!spectrogramForm.valid"
+        #startToolTip="matTooltip"
+        matTooltip
+      >
         <mat-icon>play_circle_filled</mat-icon>
         <span>Start</span>
       </button>

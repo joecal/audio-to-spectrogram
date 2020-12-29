@@ -6,6 +6,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @NgModule({
   exports: [
@@ -16,6 +17,7 @@ import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
     MatInputModule,
     MatSelectModule,
     MatBottomSheetModule,
+    MatTooltipModule,
   ],
 })
 export class MaterialModule {}

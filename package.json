@@ -10,11 +10,15 @@
     "type": "git",
     "url": "git+https://github.com/joecal/audio-to-spectrogram.git"
   },
-  "keywords": ["mp3, wav, spectrogram, mel spectrogram, librosa"],
+  "keywords": [
+    "mp3, wav, spectrogram, mel spectrogram, librosa"
+  ],
   "author": "joecal",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/joecal/audio-to-spectrogram/issues"
   },
-  "homepage": "https://github.com/joecal/audio-to-spectrogram#readme"
+  "homepage": "https://github.com/joecal/audio-to-spectrogram#readme",
+  "dependencies": {},
+  "devDependencies": {}
 }
